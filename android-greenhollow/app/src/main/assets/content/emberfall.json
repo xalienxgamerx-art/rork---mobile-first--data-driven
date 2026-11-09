@@ -1,0 +1,28 @@
+{
+  "manifest": {
+    "id": "emberfall",
+    "name": "Emberfall Relics",
+    "version": "1.0.0",
+    "author": "Greenhollow",
+    "description": "A sample content pack: a new forging metal, a wandering relic trader and a rare beast. Adds content without touching engine code.",
+    "schemaVersion": 1,
+    "dependencies": ["core"],
+    "loadOrder": 50
+  },
+  "materials": [
+    { "id": "emberglass", "name": "Emberglass", "category": "relic", "density": 6.1, "hardness": 88, "toughness": 46, "flexibility": 30, "workability": 34, "heatResistance": 92, "edgeRetention": 90, "forgeTemp": 1280, "color": "#D9772B", "itemId": "emberglass_shard" }
+  ],
+  "items": [
+    { "id": "emberglass_shard", "name": "Emberglass Shard", "type": "material", "weight": 0.4, "value": 45, "icon": "gem", "description": "Volcanic glass that never quite cools. Light, wickedly hard, and brittle." },
+    { "id": "ember_pelt", "name": "Cinder Pelt", "type": "misc", "weight": 1.4, "value": 55, "icon": "pelt", "description": "Fur the colour of banked coals." }
+  ],
+  "professions": [
+    { "id": "relic_trader", "name": "Relic Trader", "workplace": "plaza", "workStart": 9, "workEnd": 19, "wage": 5, "activity": "Hawking relics in the square", "trader": true, "cloth": "#8A2F22", "hat": true, "goods": [ { "item": "emberglass_shard", "count": 9 }, { "item": "mind_tonic", "count": 2 } ] }
+  ],
+  "npcs": [
+    { "id": "vesna", "name": "Vesna", "profession": "relic_trader", "age": 41, "race": "ashen", "home": "inn", "skin": "#D9D2C4", "hair": "#B8402A", "longHair": true, "relation": "stranger", "affinity": 38, "gold": 160, "greeting": "From the Emberfall, all of it. Careful, it bites.", "likes": "old ruins", "fears": "deep water", "personality": { "ambition": 0.8, "courage": 0.7, "sociability": 0.6, "generosity": 0.3, "greed": 0.7, "aggression": 0.3, "curiosity": 0.9, "loyalty": 0.3 } }
+  ],
+  "creatures": [
+    { "id": "cinder_wolf", "name": "Cinder Wolf", "health": 70, "damage": 12, "speed": 5.6, "aggressive": true, "color": "#B8402A", "size": 1.25, "territory": "whisper_woods", "count": 1, "loot": [ { "item": "ember_pelt", "chance": 1.0 }, { "item": "emberglass_shard", "chance": 0.6, "count": 2 } ] }
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "manifest": {
+    "id": "core",
+    "name": "Greenhollow Vale",
+    "version": "0.1.0",
+    "author": "Greenhollow",
+    "description": "The base game: the village of Greenhollow, its people, wildlife and materials.",
+    "schemaVersion": 1,
+    "loadOrder": 0
+  },
+  "materials": [
+    { "id": "iron", "name": "Iron", "density": 7.87, "hardness": 42, "toughness": 62, "flexibility": 48, "workability": 78, "heatResistance": 60, "edgeRetention": 44, "forgeTemp": 1050, "color": "#8C8F94", "itemId": "iron_ingot" },
+    { "id": "steel", "name": "Steel", "density": 7.85, "hardness": 72, "toughness": 70, "flexibility": 62, "workability": 58, "heatResistance": 66, "edgeRetention": 74, "forgeTemp": 1000, "color": "#B4BAC2", "itemId": "steel_ingot" },
+    { "id": "bronze", "name": "Bronze", "density": 8.8, "hardness": 34, "toughness": 55, "flexibility": 36, "workability": 86, "heatResistance": 42, "edgeRetention": 32, "forgeTemp": 780, "color": "#B8793A", "itemId": "bronze_ingot" }
+  ],
+  "items": [
+    { "id": "iron_ingot", "name": "Iron Ingot", "type": "material", "weight": 0.5, "value": 6, "icon": "ingot", "description": "A bar of bloomery iron. Soft, forgiving and cheap." },
+    { "id": "steel_ingot", "name": "Steel Ingot", "type": "material", "weight": 0.5, "value": 18, "icon": "ingot", "description": "Carefully carburised steel. Holds an edge far longer than iron." },
+    { "id": "bronze_ingot", "name": "Bronze Ingot", "type": "material", "weight": 0.55, "value": 9, "icon": "ingot", "description": "Heavy and easy to work, though it dulls quickly." },
+    { "id": "iron_ore", "name": "Iron Ore", "type": "material", "weight": 1.0, "value": 3, "icon": "ore", "description": "Rust-red ore from the Greyback slopes. Bram pays fair coin for it." },
+    { "id": "healing_draught", "name": "Healing Draught", "type": "potion", "weight": 0.3, "value": 22, "icon": "potion", "restoreHealth": 35, "description": "Mira's yarrow tincture. Bitter, but it closes wounds." },
+    { "id": "mind_tonic", "name": "Mind Tonic", "type": "potion", "weight": 0.3, "value": 20, "icon": "potion", "restoreMagic": 40, "description": "A pale blue tonic that clears the head." },
+    { "id": "bread", "name": "Barley Loaf", "type": "food", "weight": 0.4, "value": 3, "icon": "food", "restoreHunger": 25, "description": "Dense, dark and filling." },
+    { "id": "stew", "name": "Stag Stew", "type": "food", "weight": 0.6, "value": 8, "icon": "food", "restoreHunger": 45, "restoreComfort": 20, "restoreHealth": 5, "description": "The Gilded Stag's famous supper." },
+    { "id": "apple", "name": "Orchard Apple", "type": "food", "weight": 0.15, "value": 1, "icon": "food", "restoreHunger": 10, "description": "Crisp and a little sour." },
+    { "id": "venison", "name": "Venison", "type": "food", "weight": 0.8, "value": 7, "icon": "meat", "restoreHunger": 30, "description": "A good cut. Better cooked." },
+    { "id": "river_trout", "name": "River Trout", "type": "food", "weight": 0.5, "value": 5, "icon": "fish", "restoreHunger": 22, "description": "Fresh from the Silverrun." },
+    { "id": "wolf_pelt", "name": "Wolf Pelt", "type": "misc", "weight": 1.2, "value": 14, "icon": "pelt", "description": "Thick grey fur. The tailor will want it." },
+    { "id": "deer_hide", "name": "Deer Hide", "type": "misc", "weight": 1.0, "value": 10, "icon": "pelt", "description": "Supple hide, good for jerkins." },
+    { "id": "boar_tusk", "name": "Boar Tusk", "type": "misc", "weight": 0.3, "value": 9, "icon": "gem", "description": "Yellowed ivory, sharp as a nail." },
+    { "id": "yarrow", "name": "Yarrow Sprig", "type": "misc", "weight": 0.05, "value": 4, "icon": "herb", "description": "White flowers that staunch bleeding." },
+    { "id": "amethyst", "name": "Rough Amethyst", "type": "misc", "weight": 0.2, "value": 40, "icon": "gem", "stackable": false, "description": "A cloudy violet stone prised from the hills." },
+    { "id": "bedroll", "name": "Bedroll", "type": "misc", "weight": 2.0, "value": 6, "icon": "bedroll", "stackable": false, "description": "Wool and waxed canvas." },
+    { "id": "coin_pouch", "name": "Coin Pouch", "type": "misc", "weight": 0.1, "value": 2, "icon": "pouch", "stackable": false, "description": "Leather, drawstring, mostly empty." },
+    { "id": "rope", "name": "Hemp Rope", "type": "misc", "weight": 1.5, "value": 4, "icon": "rope", "stackable": false, "description": "Ten paces of good rope." },
+    { "id": "book_vale", "name": "Annals of the Vale", "type": "book", "weight": 0.6, "value": 15, "icon": "book", "stackable": false, "description": "Greenhollow was founded beneath the white ash by seven families fleeing the Greyback mines. The ash still marks every door." },
+    { "id": "ironwood_longsword", "name": "Ironwood Longsword", "type": "weapon", "slot": "weapon", "weight": 1.6, "value": 60, "stackable": false, "icon": "sword", "damage": 14, "reach": 1.9, "description": "An iron blade on an ironwood grip. Honest work." },
+    { "id": "hunting_knife", "name": "Hunting Knife", "type": "weapon", "slot": "weapon", "weight": 0.4, "value": 14, "stackable": false, "icon": "sword", "damage": 7, "reach": 1.3, "description": "Short, quick and always sharp." },
+    { "id": "forged_blade", "name": "Forged Blade", "type": "weapon", "slot": "weapon", "weight": 1.2, "value": 40, "stackable": false, "icon": "sword", "damage": 10, "reach": 1.7, "description": "A blade shaped by your own hammer." },
+    { "id": "leather_cap", "name": "Leather Cap", "type": "armor", "slot": "head", "weight": 0.5, "value": 12, "stackable": false, "icon": "helmet", "armor": 2, "description": "Boiled leather, stitched twice." },
+    { "id": "padded_jerkin", "name": "Padded Jerkin", "type": "armor", "slot": "chest", "weight": 2.4, "value": 28, "stackable": false, "icon": "armor", "armor": 5, "description": "Quilted linen that turns a glancing bite." },
+    { "id": "oak_shield", "name": "Oak Shield", "type": "armor", "slot": "shield", "weight": 3.0, "value": 24, "stackable": false, "icon": "shield", "armor": 6, "description": "Painted with the white ash of Greenhollow." }
+  ],
+  "races": [
+    { "id": "human", "name": "Valefolk", "description": "Hardy farmers and crafters of the vale. Balanced in all things.", "healthBonus": 5, "staminaBonus": 5, "magicBonus": 0, "skinTones": ["#E0B08A", "#C98F68", "#EBC4A0", "#A8714C"] },
+    { "id": "ashen", "name": "Ashen Elf", "description": "Long-lived wanderers with a gift for the arcane.", "healthBonus": -5, "staminaBonus": 0, "magicBonus": 25, "skinTones": ["#D9D2C4", "#C9C3B4"] },
+    { "id": "stoneborn", "name": "Stoneborn", "description": "Broad miners from under the Greybacks. Tireless.", "healthBonus": 15, "staminaBonus": 15, "magicBonus": -15, "skinTones": ["#B98A66", "#9C6E4E"] }
+  ],
+  "backgrounds": [
+    { "id": "apprentice", "name": "Smith's Apprentice", "description": "You swept Bram's forge for two winters.", "gold": 25, "skills": { "smithing": 15 }, "items": [ { "item": "iron_ingot", "count": 12 }, { "item": "steel_ingot", "count": 2 }, { "item": "ironwood_longsword" }, { "item": "healing_draught", "count": 3 }, { "item": "bedroll" }, { "item": "coin_pouch" }, { "item": "yarrow", "count": 2 }, { "item": "amethyst" }, { "item": "book_vale" }, { "item": "rope" }, { "item": "bread", "count": 2 } ] },
+    { "id": "hunter", "name": "Woodsman", "description": "You know every deer trail in the Whisper Woods.", "gold": 15, "skills": { "blade": 12 }, "items": [ { "item": "hunting_knife" }, { "item": "padded_jerkin" }, { "item": "leather_cap" }, { "item": "venison", "count": 3 }, { "item": "healing_draught", "count": 2 }, { "item": "bedroll" }, { "item": "rope" }, { "item": "iron_ingot", "count": 4 } ] },
+    { "id": "wanderer", "name": "Wanderer", "description": "A stranger on the road with coin and questions.", "gold": 90, "skills": { "speech": 12 }, "items": [ { "item": "ironwood_longsword" }, { "item": "oak_shield" }, { "item": "book_vale" }, { "item": "stew", "count": 2 }, { "item": "healing_draught", "count": 1 }, { "item": "mind_tonic", "count": 2 }, { "item": "coin_pouch" }, { "item": "iron_ingot", "count": 6 } ] }
+  ],
+  "professions": [
+    { "id": "blacksmith", "name": "Blacksmith", "workplace": "smithy", "workStart": 7, "workEnd": 18, "wage": 7, "activity": "Working the forge", "trader": true, "cloth": "#6B4A32", "goods": [ { "item": "iron_ingot", "count": 20 }, { "item": "steel_ingot", "count": 8 }, { "item": "bronze_ingot", "count": 10 }, { "item": "hunting_knife", "count": 1 }, { "item": "oak_shield", "count": 1 } ] },
+    { "id": "innkeeper", "name": "Innkeeper", "workplace": "inn", "workStart": 10, "workEnd": 23, "wage": 6, "activity": "Serving supper", "trader": true, "cloth": "#5E6B45", "goods": [ { "item": "stew", "count": 8 }, { "item": "bread", "count": 10 }, { "item": "apple", "count": 12 } ] },
+    { "id": "cook", "name": "Cook", "workplace": "inn", "workStart": 9, "workEnd": 21, "wage": 4, "activity": "Stirring the stew pot", "cloth": "#C9BFA6" },
+    { "id": "hunter", "name": "Hunter", "workplace": "hunting_ground", "workStart": 6, "workEnd": 15, "wage": 5, "activity": "Tracking deer", "cloth": "#5A5238", "hat": true },
+    { "id": "alchemist", "name": "Alchemist", "workplace": "apothecary", "workStart": 9, "workEnd": 19, "wage": 6, "activity": "Brewing tinctures", "trader": true, "cloth": "#5B5470", "hat": true, "goods": [ { "item": "healing_draught", "count": 6 }, { "item": "mind_tonic", "count": 4 }, { "item": "yarrow", "count": 6 } ] },
+    { "id": "merchant", "name": "Merchant", "workplace": "shop", "workStart": 8, "workEnd": 18, "wage": 6, "activity": "Minding the store", "trader": true, "cloth": "#8A3B32", "goods": [ { "item": "leather_cap", "count": 1 }, { "item": "padded_jerkin", "count": 1 }, { "item": "rope", "count": 2 }, { "item": "bedroll", "count": 1 }, { "item": "bread", "count": 6 } ] },
+    { "id": "tailor", "name": "Tailor", "workplace": "shop", "workStart": 9, "workEnd": 17, "wage": 4, "activity": "Stitching a jerkin", "cloth": "#7C5A86" },
+    { "id": "farmer", "name": "Farmer", "workplace": "barley_field", "workStart": 6, "workEnd": 16, "wage": 3, "activity": "Tending the barley", "cloth": "#8C7A4E", "hat": true },
+    { "id": "miner", "name": "Miner", "workplace": "greyback_dig", "workStart": 7, "workEnd": 16, "wage": 5, "activity": "Swinging a pick", "cloth": "#5C5C5C" },
+    { "id": "fisher", "name": "Fisher", "workplace": "river_bank", "workStart": 5, "workEnd": 13, "wage": 3, "activity": "Fishing the Silverrun", "cloth": "#4E6A78", "hat": true },
+    { "id": "woodcutter", "name": "Woodcutter", "workplace": "wood_edge", "workStart": 7, "workEnd": 16, "wage": 4, "activity": "Splitting logs", "cloth": "#6E4B3A" },
+    { "id": "villager", "name": "Villager", "workplace": "", "workStart": 9, "workEnd": 15, "wage": 2, "activity": "Doing chores", "cloth": "#7A6548" }
+  ],
+  "npcs": [
+    { "id": "bram", "name": "Bram", "profession": "blacksmith", "age": 46, "home": "house_nw", "skin": "#C98F68", "hair": "#3A2A1E", "beard": true, "relation": "friend", "affinity": 80, "gold": 140, "greeting": "Mind the sparks. What do you need hammered?", "likes": "good steel", "fears": "a cold forge", "personality": { "ambition": 0.7, "courage": 0.8, "sociability": 0.5, "generosity": 0.6, "greed": 0.3, "aggression": 0.3, "curiosity": 0.4, "loyalty": 0.9 } },
+    { "id": "elsa", "name": "Elsa", "profession": "innkeeper", "age": 34, "home": "inn", "skin": "#EBC4A0", "hair": "#6B3B24", "longHair": true, "relation": "friend", "affinity": 72, "gold": 110, "greeting": "Sit, sit. The stew is still warm.", "likes": "gossip", "fears": "an empty common room", "personality": { "ambition": 0.5, "courage": 0.5, "sociability": 0.95, "generosity": 0.8, "greed": 0.3, "aggression": 0.1, "curiosity": 0.7, "loyalty": 0.7 } },
+    { "id": "tomas", "name": "Tomas", "profession": "hunter", "age": 29, "home": "house_ne", "skin": "#C98F68", "hair": "#4A3222", "beard": true, "relation": "friend", "affinity": 66, "gold": 45, "greeting": "Quiet. You will scare everything from here to the river.", "likes": "silence", "fears": "wolves in winter", "personality": { "ambition": 0.4, "courage": 0.9, "sociability": 0.3, "generosity": 0.5, "greed": 0.2, "aggression": 0.4, "curiosity": 0.8, "loyalty": 0.6 } },
+    { "id": "mira", "name": "Mira", "profession": "alchemist", "age": 27, "home": "apothecary", "skin": "#E0B08A", "hair": "#2E221A", "longHair": true, "relation": "friend", "affinity": 58, "gold": 80, "greeting": "Do not touch the blue jar. Or the green one.", "likes": "rare herbs", "fears": "fire", "personality": { "ambition": 0.8, "courage": 0.4, "sociability": 0.4, "generosity": 0.5, "greed": 0.4, "aggression": 0.1, "curiosity": 0.95, "loyalty": 0.5 } },
+    { "id": "oswin", "name": "Oswin", "profession": "merchant", "age": 52, "home": "shop", "skin": "#EBC4A0", "hair": "#8A8378", "relation": "stranger", "affinity": 40, "gold": 220, "greeting": "Everything has a price, friend. Mine are merely fair.", "likes": "silver", "fears": "bandits on the road", "personality": { "ambition": 0.9, "courage": 0.3, "sociability": 0.7, "generosity": 0.2, "greed": 0.9, "aggression": 0.2, "curiosity": 0.5, "loyalty": 0.4 } },
+    { "id": "hilde", "name": "Aunt Hilde", "profession": "farmer", "age": 58, "home": "house_se", "skin": "#C98F68", "hair": "#B8B0A2", "longHair": true, "relation": "family", "affinity": 85, "gold": 35, "greeting": "You look thin. Are you eating?", "likes": "a full table", "fears": "a late frost", "personality": { "ambition": 0.3, "courage": 0.6, "sociability": 0.8, "generosity": 0.95, "greed": 0.1, "aggression": 0.2, "curiosity": 0.4, "loyalty": 0.95 } },
+    { "id": "wyl", "name": "Cousin Wyl", "profession": "woodcutter", "age": 19, "home": "house_se", "skin": "#E0B08A", "hair": "#A8703A", "relation": "family", "affinity": 70, "gold": 12, "greeting": "Heading to the woods? Take me along next time!", "likes": "tall tales", "fears": "being left behind", "personality": { "ambition": 0.6, "courage": 0.5, "sociability": 0.8, "generosity": 0.6, "greed": 0.3, "aggression": 0.3, "curiosity": 0.9, "loyalty": 0.8 } },
+    { "id": "garrick", "name": "Garrick", "profession": "hunter", "age": 38, "home": "house_sw", "skin": "#A8714C", "hair": "#1F1A16", "beard": true, "relation": "rival", "affinity": 18, "gold": 60, "greeting": "Still playing at swords? Stay off my trails.", "likes": "winning", "fears": "being forgotten", "personality": { "ambition": 0.9, "courage": 0.8, "sociability": 0.3, "generosity": 0.1, "greed": 0.7, "aggression": 0.8, "curiosity": 0.3, "loyalty": 0.3 } },
+    { "id": "dunstan", "name": "Dunstan", "profession": "miner", "age": 44, "home": "house_w", "race": "stoneborn", "skin": "#9C6E4E", "hair": "#5A2E1E", "beard": true, "relation": "rival", "affinity": 22, "gold": 50, "greeting": "Bram's little helper. Hmph.", "likes": "deep seams", "fears": "open sky", "personality": { "ambition": 0.6, "courage": 0.7, "sociability": 0.2, "generosity": 0.3, "greed": 0.6, "aggression": 0.6, "curiosity": 0.2, "loyalty": 0.7 } },
+    { "id": "isolde", "name": "Isolde", "profession": "tailor", "age": 31, "home": "house_e", "race": "ashen", "skin": "#D9D2C4", "hair": "#D8D2C0", "longHair": true, "relation": "stranger", "affinity": 44, "gold": 70, "greeting": "Stand still. That sleeve is a disgrace.", "likes": "fine thread", "fears": "moths", "personality": { "ambition": 0.6, "courage": 0.4, "sociability": 0.6, "generosity": 0.5, "greed": 0.4, "aggression": 0.1, "curiosity": 0.7, "loyalty": 0.5 } }
+  ],
+  "population": [
+    { "profession": "farmer", "count": 5 },
+    { "profession": "miner", "count": 3, "race": "stoneborn" },
+    { "profession": "fisher", "count": 3 },
+    { "profession": "woodcutter", "count": 2 },
+    { "profession": "cook", "count": 1 },
+    { "profession": "villager", "count": 2 }
+  ],
+  "creatures": [
+    { "id": "wolf", "name": "Grey Wolf", "health": 34, "damage": 7, "speed": 5.2, "aggressive": true, "color": "#6E6A66", "size": 0.9, "territory": "whisper_woods", "count": 4, "loot": [ { "item": "wolf_pelt", "chance": 0.8 } ] },
+    { "id": "boar", "name": "Tusker Boar", "health": 48, "damage": 9, "speed": 4.2, "aggressive": true, "color": "#4E3B2E", "size": 1.0, "territory": "east_thicket", "count": 3, "loot": [ { "item": "boar_tusk", "chance": 0.7 }, { "item": "venison", "chance": 0.6 } ] },
+    { "id": "deer", "name": "Vale Deer", "health": 26, "damage": 0, "speed": 6.0, "aggressive": false, "color": "#9A6E44", "size": 1.1, "territory": "stag_meadow", "count": 5, "loot": [ { "item": "venison", "chance": 1.0, "count": 2 }, { "item": "deer_hide", "chance": 0.7 } ] }
+  ],
+  "buildings": [
+    { "id": "house_ne", "name": "Hunters' Lodge", "type": "house", "x": 22.3, "z": -30.7, "w": 9, "d": 8, "h": 3.8, "wall": "#C2A678", "roof": "#5E3A28" },
+    { "id": "inn", "name": "The Gilded Stag", "type": "inn", "x": 35.3, "z": -18.8, "w": 13, "d": 10, "h": 5.6, "wall": "#D2BC8E", "roof": "#74402A", "interact": "rest" },
+    { "id": "shop", "name": "Oswin's Sundries", "type": "shop", "x": 39.0, "z": 1.0, "w": 10, "d": 8, "h": 4.2, "wall": "#CDB286", "roof": "#4F5B3A" },
+    { "id": "house_e", "name": "Weaver's Cottage", "type": "house", "x": 33.6, "z": 18.6, "w": 8, "d": 7, "h": 3.6, "wall": "#C8AE82", "roof": "#6B3F2A" },
+    { "id": "house_se", "name": "Hilde's Farmstead", "type": "house", "x": 22.3, "z": 31.5, "w": 10, "d": 8, "h": 3.8, "wall": "#BFA273", "roof": "#7A5230" },
+    { "id": "house_sw", "name": "Garrick's Cabin", "type": "house", "x": -22.3, "z": 31.5, "w": 8, "d": 7, "h": 3.5, "wall": "#A88E66", "roof": "#4A3526" },
+    { "id": "apothecary", "name": "Mira's Apothecary", "type": "apothecary", "x": -33.6, "z": 18.6, "w": 8, "d": 7, "h": 4.4, "wall": "#C4B090", "roof": "#4B4763" },
+    { "id": "smithy", "name": "Bram's Smithy", "type": "smithy", "x": -39.0, "z": 1.0, "w": 11, "d": 8, "h": 4.0, "wall": "#9E9488", "roof": "#3E3630", "interact": "forge" },
+    { "id": "house_w", "name": "Miners' Row", "type": "house", "x": -34.6, "z": -18.2, "w": 10, "d": 7, "h": 3.6, "wall": "#B59E78", "roof": "#5A3D2C" },
+    { "id": "house_nw", "name": "Bram's House", "type": "house", "x": -22.3, "z": -30.7, "w": 8, "d": 7, "h": 3.8, "wall": "#C6AC80", "roof": "#6E4630" },
+    { "id": "well", "name": "The Old Well", "type": "well", "x": 5.0, "z": -4.0, "w": 2.4, "d": 2.4, "h": 1.0, "wall": "#8E8778", "roof": "#5E3A28", "interact": "wash" }
+  ],
+  "locations": [
+    { "id": "greenhollow", "name": "Greenhollow", "x": 0, "z": 0, "radius": 56 },
+    { "id": "greenhollow_road", "name": "Greenhollow Road", "x": 0, "z": 118, "radius": 62 },
+    { "id": "whisper_woods", "name": "Whisper Woods", "x": -112, "z": 52, "radius": 46 },
+    { "id": "east_thicket", "name": "Tusker Thicket", "x": 118, "z": 20, "radius": 40 },
+    { "id": "stag_meadow", "name": "Stag Meadow", "x": 92, "z": 112, "radius": 44 },
+    { "id": "silverrun", "name": "Silverrun River", "x": 0, "z": -94, "radius": 34 },
+    { "id": "greyback_dig", "name": "Greyback Dig", "x": -62, "z": 104, "radius": 26 }
+  ],
+  "spots": [
+    { "id": "plaza", "name": "the village square", "x": 0, "z": 2 },
+    { "id": "barley_field", "name": "the barley fields", "x": 44, "z": 74, "gate": "south" },
+    { "id": "greyback_dig", "name": "the Greyback Dig", "x": -58, "z": 100, "gate": "south" },
+    { "id": "hunting_ground", "name": "Stag Meadow", "x": 78, "z": 104, "gate": "south" },
+    { "id": "wood_edge", "name": "the wood's edge", "x": -72, "z": 62, "gate": "south" },
+    { "id": "river_bank", "name": "the Silverrun bank", "x": 8, "z": -72, "gate": "north" }
+  ],
+  "resources": [
+    { "id": "yarrow_1", "name": "Yarrow", "item": "yarrow", "kind": "herb", "x": 14, "z": 62, "count": 2 },
+    { "id": "yarrow_2", "name": "Yarrow", "item": "yarrow", "kind": "herb", "x": -12, "z": 88, "count": 2 },
+    { "id": "yarrow_3", "name": "Yarrow", "item": "yarrow", "kind": "herb", "x": -84, "z": 40, "count": 3 },
+    { "id": "yarrow_4", "name": "Yarrow", "item": "yarrow", "kind": "herb", "x": 20, "z": -66, "count": 2 },
+    { "id": "yarrow_5", "name": "Yarrow", "item": "yarrow", "kind": "herb", "x": 70, "z": 46, "count": 2 },
+    { "id": "apple_1", "name": "Windfall Apples", "item": "apple", "kind": "herb", "x": 30, "z": 52, "count": 3, "respawnHours": 12 },
+    { "id": "ore_1", "name": "Iron Vein", "item": "iron_ore", "kind": "ore", "x": -64, "z": 106, "count": 3, "respawnHours": 48 },
+    { "id": "ore_2", "name": "Iron Vein", "item": "iron_ore", "kind": "ore", "x": -54, "z": 110, "count": 3, "respawnHours": 48 },
+    { "id": "ore_3", "name": "Iron Vein", "item": "iron_ore", "kind": "ore", "x": -70, "z": 96, "count": 2, "respawnHours": 48 },
+    { "id": "ore_4", "name": "Iron Vein", "item": "iron_ore", "kind": "ore", "x": 104, "z": -40, "count": 4, "respawnHours": 48 }
+  ]
+}

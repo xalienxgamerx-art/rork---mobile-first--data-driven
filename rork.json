@@ -1,0 +1,10 @@
+{
+  "apps": [
+    {
+      "name": "Greenhollow",
+      "path": "android-greenhollow",
+      "framework": "kotlin"
+    }
+  ],
+  "$schema": "https://rork.com/schema/rork.json"
+}
