@@ -12,6 +12,9 @@ import androidx.lifecycle.viewModelScope
 import app.rork.p7buzvrzcw3frddi8y50ou.data.ContentLoader
 import app.rork.p7buzvrzcw3frddi8y50ou.data.ContentRegistry
 import app.rork.p7buzvrzcw3frddi8y50ou.data.MaterialDef
+import app.rork.p7buzvrzcw3frddi8y50ou.data.SCHEMA_VERSION
+import app.rork.p7buzvrzcw3frddi8y50ou.sim.Appearance
+import app.rork.p7buzvrzcw3frddi8y50ou.sim.SAVE_VERSION
 import app.rork.p7buzvrzcw3frddi8y50ou.sim.BladeGeometry
 import app.rork.p7buzvrzcw3frddi8y50ou.sim.Command
 import app.rork.p7buzvrzcw3frddi8y50ou.sim.ForgePhysics
@@ -162,11 +165,25 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
     private val engine: GameEngine? get() = (phase.value as? Phase.Playing)?.engine
 
     init {
+        Diagnostics.attach(app.filesDir)
         viewModelScope.launch(Dispatchers.Default) {
             val registry = ContentLoader.load(getApplication(), settings.value.disabledPacks)
             content.value = registry
-            val save = SaveStore.load(getApplication())
-            phase.value = if (save != null) Phase.Playing(makeEngine(registry, save)) else Phase.Creation(registry)
+            val loaded = SaveStore.load(getApplication())
+            val save = loaded.save
+            phase.value = if (save != null) {
+                try {
+                    Phase.Playing(makeEngine(registry, save))
+                } catch (e: Exception) {
+                    // The save file is left where it is; only this session starts from creation.
+                    Diagnostics.record("world", "The saved world could not be started.", e)
+                    notices.tryEmit("Your saved world could not be started. The details are in Diagnostics.")
+                    Phase.Creation(registry)
+                }
+            } else {
+                Phase.Creation(registry)
+            }
+            if (loaded.notice.isNotEmpty()) notices.tryEmit(loaded.notice)
         }
         // Keeps the vale alive while the player is in the journal, the pack or at the forge.
         viewModelScope.launch(Dispatchers.Default) {
@@ -175,7 +192,13 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
                 delay(200)
                 val e = engine ?: continue
                 if (paused) continue
-                if (System.nanoTime() - e.lastUpdateNanos > 350_000_000L) e.update(0.2f)
+                if (System.nanoTime() - e.lastUpdateNanos > 350_000_000L) {
+                    try {
+                        e.update(0.2f)
+                    } catch (ex: Exception) {
+                        Diagnostics.record("world", "A step of the world failed while away from the World tab.", ex)
+                    }
+                }
                 sinceSave += 0.2f
                 if (sinceSave >= 60f) {
                     sinceSave = 0f
@@ -192,11 +215,14 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         return e
     }
 
-    private fun persist(e: GameEngine) {
-        try {
-            SaveStore.write(getApplication(), e.withState { SaveStore.encode(it) })
-        } catch (_: Exception) {
-        }
+    /** Returns whether the world reached storage. Failures are written to Diagnostics, never hidden. */
+    private fun persist(e: GameEngine): Boolean = try {
+        SaveStore.write(getApplication(), e.withState { SaveStore.encode(it) })
+        true
+    } catch (ex: Exception) {
+        Diagnostics.record("save", "The world could not be saved.", ex)
+        Diagnostics.updateSave { it.copy(lastError = "${Diagnostics.time(System.currentTimeMillis())}: ${ex.message ?: ex.javaClass.simpleName}") }
+        false
     }
 
     fun send(c: Command) {
@@ -215,21 +241,56 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
     fun saveNow() {
         val e = engine ?: return
         viewModelScope.launch(Dispatchers.IO) {
-            persist(e)
-            notices.tryEmit("The world is written down.")
+            notices.tryEmit(
+                if (persist(e)) "The world is written down." else "The world could not be saved. See Diagnostics in Settings.",
+            )
         }
     }
 
-    fun startNewGame(name: String, raceId: String, backgroundId: String) {
+    fun startNewGame(name: String, raceId: String, backgroundId: String, appearance: Appearance, points: Map<String, Int>) {
         val registry = content.value ?: return
         phase.value = Phase.Loading
         viewModelScope.launch(Dispatchers.Default) {
-            val save = GameEngine.newGame(registry, name, raceId, backgroundId)
-            val e = makeEngine(registry, save)
-            forge.reset()
-            persist(e)
-            phase.value = Phase.Playing(e)
+            try {
+                val save = GameEngine.newGame(registry, name, raceId, backgroundId, appearance, points)
+                val e = makeEngine(registry, save)
+                forge.reset()
+                persist(e)
+                phase.value = Phase.Playing(e)
+            } catch (ex: Exception) {
+                Diagnostics.record("world", "A new life could not be started.", ex)
+                notices.tryEmit("The new world could not be started. The details are in Diagnostics.")
+                phase.value = Phase.Creation(registry)
+            }
         }
+    }
+
+    /** The text behind Share report: device, packs, save health, pack problems and recent errors. */
+    fun diagnosticsReport(): String {
+        val app = getApplication<Application>()
+        val version = try {
+            app.packageManager.getPackageInfo(app.packageName, 0).versionName ?: "?"
+        } catch (_: Exception) {
+            "?"
+        }
+        val registry = content.value
+        val header = buildList {
+            add("Game version $version, save format $SAVE_VERSION, pack format $SCHEMA_VERSION")
+            add("Device ${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}, Android ${android.os.Build.VERSION.RELEASE}")
+            add("Graphics ${listOf("low", "medium", "high").getOrElse(settings.value.graphics) { "?" }}, last frame rate ${engine?.fps ?: 0}")
+            registry?.packs?.forEach { p ->
+                val state = when {
+                    !p.enabled -> "switched off"
+                    !p.loaded -> "NOT LOADED"
+                    else -> "${p.definitionCount} definitions"
+                }
+                add("Pack ${p.manifest.id} ${p.manifest.version} (format ${p.manifest.schemaVersion}, ${if (p.builtin) "built in" else "imported"}): $state")
+            }
+        }
+        val issues = registry?.issues.orEmpty().map {
+            "[${it.severity}] ${it.packId}${if (it.entry.isNotEmpty()) " / ${it.entry}" else ""}: ${it.message}"
+        }
+        return Diagnostics.report(header, issues)
     }
 
     fun newLife() {
@@ -254,12 +315,13 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
 
     fun importPack(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = ContentLoader.importPack(getApplication(), uri)
+            val result = ContentLoader.importPack(getApplication(), uri, settings.value.disabledPacks)
             result.onSuccess {
                 notices.tryEmit("Installed ${it.name} ${it.version}.")
                 withContext(Dispatchers.Main) { reloadContent() }
             }.onFailure {
-                notices.tryEmit("That file is not a valid content pack: ${it.message ?: "unreadable"}")
+                Diagnostics.record("packs", "A pack was not installed. ${it.message ?: "The file was unreadable."}")
+                notices.tryEmit("The pack was not installed. ${it.message ?: "The file was unreadable."}")
             }
         }
     }
@@ -280,7 +342,13 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
             val registry = ContentLoader.load(getApplication(), settings.value.disabledPacks)
             content.value = registry
             phase.value = when {
-                snapshot != null -> Phase.Playing(makeEngine(registry, SaveStore.decode(snapshot)))
+                snapshot != null -> try {
+                    Phase.Playing(makeEngine(registry, SaveStore.decode(snapshot)))
+                } catch (e: Exception) {
+                    Diagnostics.record("packs", "The world could not be rebuilt after the packs changed.", e)
+                    notices.tryEmit("The world could not be rebuilt with these packs. The details are in Diagnostics.")
+                    current
+                }
                 else -> Phase.Creation(registry)
             }
         }

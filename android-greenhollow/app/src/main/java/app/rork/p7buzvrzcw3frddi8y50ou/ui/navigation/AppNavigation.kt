@@ -58,6 +58,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import app.rork.p7buzvrzcw3frddi8y50ou.GameViewModel
 import app.rork.p7buzvrzcw3frddi8y50ou.Phase
+import app.rork.p7buzvrzcw3frddi8y50ou.sim.Command
 import app.rork.p7buzvrzcw3frddi8y50ou.sim.GameEngine
 import app.rork.p7buzvrzcw3frddi8y50ou.sim.Settings
 import app.rork.p7buzvrzcw3frddi8y50ou.sim.UiEvent
@@ -68,6 +69,7 @@ import app.rork.p7buzvrzcw3frddi8y50ou.ui.screens.ForgeScreen
 import app.rork.p7buzvrzcw3frddi8y50ou.ui.screens.JournalScreen
 import app.rork.p7buzvrzcw3frddi8y50ou.ui.screens.NpcDetailScreen
 import app.rork.p7buzvrzcw3frddi8y50ou.ui.screens.PackScreen
+import app.rork.p7buzvrzcw3frddi8y50ou.ui.screens.ReadingSheet
 import app.rork.p7buzvrzcw3frddi8y50ou.ui.screens.SettingsSheet
 import app.rork.p7buzvrzcw3frddi8y50ou.ui.screens.WorldScreen
 import app.rork.p7buzvrzcw3frddi8y50ou.ui.theme.Ink
@@ -169,12 +171,15 @@ private fun GameShell(
     val haptics = LocalHapticFeedback.current
     var hurtPulse by remember { mutableIntStateOf(0) }
     var dialogue by remember { mutableStateOf<UiEvent.Dialogue?>(null) }
+    var reading by remember { mutableStateOf<UiEvent.Read?>(null) }
 
     LaunchedEffect(engine) {
         engine.events.collect { e ->
             when (e) {
                 is UiEvent.Toast -> announce(e.text)
                 is UiEvent.Dialogue -> dialogue = e
+                is UiEvent.Read -> reading = e
+                UiEvent.EndDialogue -> dialogue = null
                 UiEvent.OpenForge -> nav.toTab("forge")
                 UiEvent.Hit -> haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 UiEvent.Hurt -> {
@@ -237,6 +242,10 @@ private fun GameShell(
     }
 
     dialogue?.let { d ->
-        DialogueSheet(engine, d.npcId, d.line) { dialogue = null }
+        DialogueSheet(engine, d.npcId, d.line) {
+            dialogue = null
+            engine.submit(Command.EndDialogue)
+        }
     }
+    reading?.let { r -> ReadingSheet(r.title, r.text) { reading = null } }
 }

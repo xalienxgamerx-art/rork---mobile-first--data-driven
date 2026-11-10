@@ -1,6 +1,15 @@
 package app.rork.p7buzvrzcw3frddi8y50ou.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -55,14 +64,72 @@ private fun TradeRow(icon: String, title: String, trailing: String, onClick: () 
     HorizontalDivider(color = Ink.Line)
 }
 
-/** Conversation with a villager: talk, give a gift, and trade when they keep a stall. */
+/** Something long to read: a sign, a book, a notice. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ReadingSheet(title: String, text: String, onDismiss: () -> Unit) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = Ink.Parchment,
+        contentColor = Ink.Text,
+    ) {
+        Column(
+            Modifier.padding(horizontal = 22.dp).navigationBarsPadding(),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text(title, style = MaterialTheme.typography.headlineMedium)
+            HorizontalDivider(color = Ink.Line)
+            Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
+                text.split("\n").filter { it.isNotBlank() }.forEach {
+                    Text(it.trim(), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(bottom = 10.dp))
+                }
+            }
+            Spacer(Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun ReplyRow(text: String, onClick: () -> Unit) {
+    val shape = RoundedCornerShape(14.dp)
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .clip(shape)
+            .background(Ink.ParchmentLight.copy(alpha = 0.7f))
+            .border(BorderStroke(1.dp, Ink.Leather.copy(alpha = 0.55f)), shape)
+            .clickable(role = Role.Button, onClick = onClick)
+            .heightIn(min = 48.dp)
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Ink.Leather, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.width(8.dp))
+        Text(text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+    }
+}
+
+/** Conversation with a villager: branching replies, gifts, and trade when they keep a stall. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DialogueSheet(engine: GameEngine, npcId: String, line: String, onDismiss: () -> Unit) {
     val journal by engine.journal.collectAsStateWithLifecycle()
     val pack by engine.pack.collectAsStateWithLifecycle()
+    val talk by engine.dialogue.collectAsStateWithLifecycle()
+    val live = talk?.takeIf { it.npcId == npcId }
     val npc = journal.npcs.firstOrNull { it.id == npcId }
     var mode by rememberSaveable(npcId) { mutableStateOf("talk") }
+    // An authored reply that opens trade bumps the nonce; show the wares when it changes.
+    val nonce = live?.tradeNonce ?: 0
+    var seenNonce by remember(npcId) { mutableIntStateOf(nonce) }
+    LaunchedEffect(nonce) {
+        if (nonce != seenNonce) {
+            seenNonce = nonce
+            mode = "buy"
+        }
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -91,13 +158,10 @@ fun DialogueSheet(engine: GameEngine, npcId: String, line: String, onDismiss: ()
                 Text("${npc.affinity}", style = MaterialTheme.typography.titleMedium)
             }
             ParchmentCard(Modifier.fillMaxWidth()) {
-                Text("“$line”", style = MaterialTheme.typography.bodyLarge, fontStyle = FontStyle.Italic)
+                Text("“${live?.line ?: line}”", style = MaterialTheme.typography.bodyLarge, fontStyle = FontStyle.Italic)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                InkChip("Talk", mode == "talk", {
-                    mode = "talk"
-                    engine.submit(Command.Chat(npcId))
-                })
+                InkChip("Talk", mode == "talk", { mode = "talk" })
                 InkChip("Give a gift", mode == "gift", { mode = "gift" })
                 if (npc.trader) {
                     InkChip("Buy", mode == "buy", { mode = "buy" })
@@ -136,10 +200,16 @@ fun DialogueSheet(engine: GameEngine, npcId: String, line: String, onDismiss: ()
                             ) { engine.submit(Command.Sell(npcId, item.uid)) }
                         }
                     }
-                    else -> Text(
-                        "Tap Talk again to keep the conversation going. People remember how you treat them.",
-                        style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
-                    )
+                    else -> {
+                        val replies = live?.replies.orEmpty()
+                        if (replies.isEmpty()) {
+                            Text(
+                                "There is nothing more to say for now.",
+                                style = MaterialTheme.typography.bodyMedium, fontStyle = FontStyle.Italic, color = Ink.Muted,
+                            )
+                        }
+                        replies.forEach { r -> ReplyRow(r.text) { engine.submit(Command.Reply(r.index)) } }
+                    }
                 }
             }
             Spacer(Modifier.height(12.dp))

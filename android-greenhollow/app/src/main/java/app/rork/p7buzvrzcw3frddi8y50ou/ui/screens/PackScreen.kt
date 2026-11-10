@@ -68,7 +68,10 @@ fun PackScreen(engine: GameEngine, onSettings: () -> Unit) {
     val pack by engine.pack.collectAsStateWithLifecycle()
     var slot by rememberSaveable { mutableStateOf("") }
     var selectedUid by rememberSaveable { mutableStateOf("") }
-    val shown = pack.items.filter { slot.isEmpty() || it.slot == slot }
+    // Both trinket slots take the same kind of item.
+    val wanted = if (slot.startsWith("trinket")) "trinket" else slot
+    val shown = pack.items.filter { slot.isEmpty() || it.slot == wanted }
+    val active = pack.slots.firstOrNull { it.id == slot }
     val selected = shown.firstOrNull { it.uid == selectedUid } ?: shown.firstOrNull()
 
     Column(Modifier.fillMaxSize().parchment()) {
@@ -77,11 +80,25 @@ fun PackScreen(engine: GameEngine, onSettings: () -> Unit) {
             Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 14.dp, vertical = 6.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            fun toggle(s: String) { slot = if (slot == s) "" else s }
-            InkChip("Head", slot == "head", { toggle("head") }, Icons.Filled.SportsMotorsports)
-            InkChip("Chest", slot == "chest", { toggle("chest") }, Icons.Filled.Checkroom)
-            InkChip("Weapon", slot == "weapon", { toggle("weapon") })
-            InkChip("Shield", slot == "shield", { toggle("shield") }, Icons.Filled.Shield)
+            pack.slots.forEach { s ->
+                InkChip(
+                    s.label, slot == s.id, { slot = if (slot == s.id) "" else s.id },
+                    when (s.id) {
+                        "head" -> Icons.Filled.SportsMotorsports
+                        "chest" -> Icons.Filled.Checkroom
+                        "off_hand" -> Icons.Filled.Shield
+                        else -> null
+                    },
+                )
+            }
+        }
+        if (active != null) {
+            Text(
+                active.item?.let { "${active.label}: wearing $it" } ?: "${active.label}: nothing worn",
+                style = MaterialTheme.typography.bodyMedium,
+                fontStyle = FontStyle.Italic,
+                modifier = Modifier.padding(horizontal = 18.dp).padding(bottom = 4.dp),
+            )
         }
         Row(Modifier.padding(horizontal = 18.dp).padding(bottom = 6.dp)) {
             Text("${pack.gold} gold", style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
@@ -135,6 +152,8 @@ private fun ItemCell(item: ItemView, selected: Boolean, onClick: () -> Unit) {
             ItemGlyph(item.icon, Modifier.size(40.dp))
             if (item.equipped) {
                 Box(Modifier.align(Alignment.TopEnd).size(10.dp).clip(CircleShape).background(Ink.Moss))
+            } else if (item.blocked.isNotEmpty()) {
+                Box(Modifier.align(Alignment.TopEnd).size(10.dp).clip(CircleShape).background(Ink.Blood))
             }
         }
         Spacer(Modifier.height(4.dp))
@@ -173,15 +192,46 @@ private fun ItemDetail(engine: GameEngine, item: ItemView) {
                     Text("${"%.1f".format(item.weight)} kg", style = MaterialTheme.typography.titleSmall)
                 }
                 val line = buildList {
-                    if (item.damage > 0f) add("Damage ${"%.1f".format(item.damage)}")
-                    if (item.armor > 0f) add("Armour ${"%.0f".format(item.armor)}")
-                    item.forged?.let {
-                        add("Reach ${"%.2f".format(it.stats.reach)} m")
-                        add("Handling ${it.stats.handling.roundToInt()}")
+                    when (item.weaponType) {
+                        "two_handed" -> add("Two-handed")
+                        "dagger" -> add("Dagger")
+                        "one_handed" -> add("One-handed")
                     }
+                    if (item.armorClass.isNotEmpty()) add("${item.armorClass.replaceFirstChar { it.uppercase() }} armour")
+                    if (item.damage > 0f) add("Damage ${"%.1f".format(item.damage)}")
+                    if (item.damage > 0f) add("Speed ${"%.1f".format(item.speed)}")
+                    if (item.reach > 0f) add("Reach ${"%.2f".format(item.reach)} m")
+                    if (item.armor > 0f) add("Armour ${"%.0f".format(item.armor)}")
+                    item.forged?.let { add("Handling ${it.stats.handling.roundToInt()}") }
                     add("Worth ${item.value} gold")
                 }.joinToString(" · ")
                 Text(line, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+            }
+        }
+        if (item.bonuses.isNotEmpty()) {
+            Text("Grants ${item.bonuses.joinToString(", ")}", style = MaterialTheme.typography.bodyMedium, color = Ink.Moss, modifier = Modifier.padding(top = 6.dp))
+        }
+        if (item.requirements.isNotEmpty()) {
+            Text(
+                "Needs ${item.requirements.joinToString(", ")}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (item.blocked.isNotEmpty()) Ink.Blood else Ink.Muted,
+            )
+        }
+        if (item.blocked.isNotEmpty()) {
+            Text(item.blocked, style = MaterialTheme.typography.bodyMedium, color = Ink.Blood)
+        }
+        if (item.compare.isNotEmpty()) {
+            Spacer(Modifier.height(6.dp))
+            Text("Against ${item.comparedTo.ifEmpty { "what you wear" }}", style = MaterialTheme.typography.titleSmall)
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                item.compare.forEach { c ->
+                    Text(
+                        "${c.label} ${c.value} ${if (c.delta > 0f) "▲" else if (c.delta < 0f) "▼" else "="}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (c.delta > 0f) Ink.Moss else if (c.delta < 0f) Ink.Blood else Ink.Muted,
+                    )
+                }
             }
         }
         if (item.description.isNotBlank()) {
@@ -196,7 +246,7 @@ private fun ItemDetail(engine: GameEngine, item: ItemView) {
                     modifier = Modifier.weight(1f).height(50.dp),
                     shape = CircleShape,
                 ) {
-                    if (item.slot == "weapon") {
+                    if (item.slot == "main_hand") {
                         SwordGlyph(Ink.ParchmentLight, Modifier.size(20.dp))
                         Spacer(Modifier.width(8.dp))
                     }

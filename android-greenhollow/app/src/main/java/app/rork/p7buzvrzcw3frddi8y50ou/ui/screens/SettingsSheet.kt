@@ -41,7 +41,11 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import android.content.Intent
+import androidx.compose.ui.platform.LocalContext
+import app.rork.p7buzvrzcw3frddi8y50ou.Diagnostics
 import app.rork.p7buzvrzcw3frddi8y50ou.GameViewModel
+import app.rork.p7buzvrzcw3frddi8y50ou.ui.KeyValue
 import app.rork.p7buzvrzcw3frddi8y50ou.Phase
 import app.rork.p7buzvrzcw3frddi8y50ou.ui.InkChip
 import app.rork.p7buzvrzcw3frddi8y50ou.ui.ParchmentCard
@@ -75,6 +79,8 @@ fun SettingsSheet(vm: GameViewModel, onDismiss: () -> Unit) {
     val settings by vm.settings.collectAsStateWithLifecycle()
     val content by vm.content.collectAsStateWithLifecycle()
     val phase by vm.phase.collectAsStateWithLifecycle()
+    val diag by Diagnostics.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     var confirmNewLife by remember { mutableStateOf(false) }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) vm.importPack(uri)
@@ -186,23 +192,74 @@ fun SettingsSheet(vm: GameViewModel, onDismiss: () -> Unit) {
                             }
                         }
                     }
-                    if (registry.issues.isNotEmpty()) {
-                        HorizontalDivider(Modifier.padding(vertical = 6.dp), color = Ink.Line)
-                        Text("Pack report", style = MaterialTheme.typography.titleSmall)
-                        registry.issues.take(12).forEach { issue ->
-                            Text(
-                                "${issue.packId}: ${issue.message}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = if (issue.severity == "error") Ink.Blood else Ink.Muted,
-                            )
-                        }
-                    }
                 }
                 Spacer(Modifier.height(8.dp))
                 OutlinedButton(
                     onClick = { picker.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) },
                     shape = CircleShape,
                 ) { Text("Import a pack…", color = Ink.LeatherDark) }
+            }
+
+            ParchmentCard(Modifier.fillMaxWidth()) {
+                Text("Diagnostics", style = MaterialTheme.typography.titleMedium)
+                Text("Saves", style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 4.dp))
+                KeyValue("Last saved", Diagnostics.time(diag.save.lastSaved).replaceFirstChar { it.uppercase() })
+                KeyValue("Backups kept", "${diag.save.backups} of 3")
+                if (diag.save.recovery.isNotEmpty()) {
+                    Text("Recovered: ${diag.save.recovery}", style = MaterialTheme.typography.bodySmall, color = Ink.Blood)
+                }
+                if (diag.save.migration.isNotEmpty()) {
+                    Text("Upgraded: ${diag.save.migration}", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                }
+                if (diag.save.lastError.isNotEmpty()) {
+                    Text("Last save error: ${diag.save.lastError}", style = MaterialTheme.typography.bodySmall, color = Ink.Blood)
+                }
+
+                HorizontalDivider(Modifier.padding(vertical = 6.dp), color = Ink.Line)
+                Text("Content packs", style = MaterialTheme.typography.titleSmall)
+                val issues = content?.issues.orEmpty()
+                if (issues.isEmpty()) {
+                    Text("No problems found.", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                }
+                issues.take(12).forEach { issue ->
+                    val where = if (issue.entry.isNotEmpty()) "${issue.packId} › ${issue.entry}" else issue.packId
+                    Text(
+                        "$where: ${issue.message}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (issue.severity == "error") Ink.Blood else Ink.Muted,
+                    )
+                }
+                if (issues.size > 12) {
+                    Text("And ${issues.size - 12} more in the shared report.", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                }
+
+                HorizontalDivider(Modifier.padding(vertical = 6.dp), color = Ink.Line)
+                Text("Recent errors", style = MaterialTheme.typography.titleSmall)
+                if (diag.entries.isEmpty()) {
+                    Text("None recorded.", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                }
+                diag.entries.takeLast(6).asReversed().forEach { e ->
+                    Text(
+                        "${Diagnostics.time(e.time)} · ${e.area}: ${e.message}",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = {
+                        val send = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_SUBJECT, "Greenhollow diagnostics report")
+                            putExtra(Intent.EXTRA_TEXT, vm.diagnosticsReport())
+                        }
+                        try {
+                            context.startActivity(Intent.createChooser(send, "Share report"))
+                        } catch (e: Exception) {
+                            Diagnostics.record("report", "The report could not be shared.", e)
+                        }
+                    },
+                    shape = CircleShape,
+                ) { Text("Share report", color = Ink.LeatherDark) }
             }
 
             if (phase is Phase.Playing) {

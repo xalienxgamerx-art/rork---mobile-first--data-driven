@@ -2,27 +2,40 @@
   "manifest": {
     "id": "emberfall",
     "name": "Emberfall Relics",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "author": "Greenhollow",
-    "description": "A sample content pack: a new forging metal, a wandering relic trader and a rare beast. Adds content without touching engine code.",
-    "schemaVersion": 1,
-    "dependencies": ["core"],
+    "description": "A sample content pack: a new forging metal, a wandering relic trader with her own conversation, a rare beast, a rumour and things to find. Adds content without touching engine code.",
+    "schemaVersion": 2,
+    "dependencies": [
+      "core>=0.2.0"
+    ],
     "loadOrder": 50
   },
   "materials": [
-    { "id": "emberglass", "name": "Emberglass", "category": "relic", "density": 6.1, "hardness": 88, "toughness": 46, "flexibility": 30, "workability": 34, "heatResistance": 92, "edgeRetention": 90, "forgeTemp": 1280, "color": "#D9772B", "itemId": "emberglass_shard" }
+    {"id": "emberglass", "name": "Emberglass", "category": "relic", "density": 6.1, "hardness": 88, "toughness": 46, "flexibility": 30, "workability": 34, "heatResistance": 92, "edgeRetention": 90, "forgeTemp": 1280, "color": "#D9772B", "itemId": "emberglass_shard"}
   ],
   "items": [
-    { "id": "emberglass_shard", "name": "Emberglass Shard", "type": "material", "weight": 0.4, "value": 45, "icon": "gem", "description": "Volcanic glass that never quite cools. Light, wickedly hard, and brittle." },
-    { "id": "ember_pelt", "name": "Cinder Pelt", "type": "misc", "weight": 1.4, "value": 55, "icon": "pelt", "description": "Fur the colour of banked coals." }
+    {"id": "emberglass_shard", "name": "Emberglass Shard", "type": "material", "weight": 0.4, "value": 45, "icon": "gem", "description": "Volcanic glass that never quite cools. Light, wickedly hard, and brittle."},
+    {"id": "ember_pelt", "name": "Cinder Pelt", "type": "misc", "weight": 1.4, "value": 55, "icon": "pelt", "description": "Fur the colour of banked coals."},
+    {"id": "ember_band", "name": "Emberglass Band", "type": "trinket", "slot": "trinket", "weight": 0.1, "value": 90, "stackable": false, "icon": "gem", "description": "A ring of dark glass, warm against the skin. The warmth does not fade.", "bonuses": {"willpower": 1, "intellect": 1}, "requirements": {"willpower": 6}}
   ],
   "professions": [
-    { "id": "relic_trader", "name": "Relic Trader", "workplace": "plaza", "workStart": 9, "workEnd": 19, "wage": 5, "activity": "Hawking relics in the square", "trader": true, "cloth": "#8A2F22", "hat": true, "goods": [ { "item": "emberglass_shard", "count": 9 }, { "item": "mind_tonic", "count": 2 } ] }
+    {"id": "relic_trader", "name": "Relic Trader", "workplace": "plaza", "workStart": 9, "workEnd": 19, "wage": 5, "activity": "Hawking relics in the square", "trader": true, "cloth": "#8A2F22", "hat": true, "goods": [{"item": "emberglass_shard", "count": 9}, {"item": "mind_tonic", "count": 2}, {"item": "ember_band", "count": 1}]}
   ],
   "npcs": [
-    { "id": "vesna", "name": "Vesna", "profession": "relic_trader", "age": 41, "race": "ashen", "home": "inn", "skin": "#D9D2C4", "hair": "#B8402A", "longHair": true, "relation": "stranger", "affinity": 38, "gold": 160, "greeting": "From the Emberfall, all of it. Careful, it bites.", "likes": "old ruins", "fears": "deep water", "personality": { "ambition": 0.8, "courage": 0.7, "sociability": 0.6, "generosity": 0.3, "greed": 0.7, "aggression": 0.3, "curiosity": 0.9, "loyalty": 0.3 } }
+    {"id": "vesna", "name": "Vesna", "profession": "relic_trader", "age": 41, "race": "ashen", "home": "inn", "skin": "#D9D2C4", "hair": "#B8402A", "longHair": true, "relation": "stranger", "affinity": 38, "gold": 160, "greeting": "From the Emberfall, all of it. Careful, it bites.", "likes": "old ruins", "fears": "deep water", "personality": {"ambition": 0.8, "courage": 0.7, "sociability": 0.6, "generosity": 0.3, "greed": 0.7, "aggression": 0.3, "curiosity": 0.9, "loyalty": 0.3}}
   ],
   "creatures": [
-    { "id": "cinder_wolf", "name": "Cinder Wolf", "health": 70, "damage": 12, "speed": 5.6, "aggressive": true, "color": "#B8402A", "size": 1.25, "territory": "whisper_woods", "count": 1, "loot": [ { "item": "ember_pelt", "chance": 1.0 }, { "item": "emberglass_shard", "chance": 0.6, "count": 2 } ] }
+    {"id": "cinder_wolf", "name": "Cinder Wolf", "health": 70, "damage": 12, "speed": 5.6, "aggressive": true, "color": "#B8402A", "size": 1.25, "territory": "whisper_woods", "count": 1, "description": "A wolf with a coat like banked coals. Where it beds down the leaf litter is scorched black.", "loot": [{"item": "ember_pelt", "chance": 1.0}, {"item": "emberglass_shard", "chance": 0.6, "count": 2}]}
+  ],
+  "interactables": [
+    {"id": "scorched_stone", "name": "a scorched standing stone", "kind": "marker", "x": -96.0, "z": 44.0, "prompt": "Examine the scorched stone", "text": "The moss on this stone is burned away in the shape of something that lay against it. The rock is still faintly warm, and flecks of dark glass glitter in the cracks.", "rumour": "cinder_tracks", "loot": [{"item": "emberglass_shard", "chance": 1.0}], "skillXp": {"hunting": 4}},
+    {"id": "relic_crate", "name": "Vesna's relic crate", "kind": "container", "x": 6.5, "z": 9.0, "owner": "vesna", "accessAffinity": 55, "respawnHours": 120, "loot": [{"item": "emberglass_shard", "chance": 1.0}]}
+  ],
+  "rumours": [
+    {"id": "cinder_tracks", "title": "Scorched tracks", "location": "whisper_woods", "text": "Something in the Whisper Woods leaves burned leaf litter where it sleeps. Vesna pays well for its pelt."}
+  ],
+  "dialogues": [
+    {"id": "vesna_talk", "npc": "vesna", "nodes": [{"id": "start", "text": "From the Emberfall, all of it. Careful, it bites.", "lines": [{"text": "{player}. Good. I was hoping for someone who can tell glass from gravel.", "conditions": [{"type": "affinity", "min": 55}]}], "replies": [{"text": "Show me the relics.", "outcomes": [{"type": "trade"}], "answer": "Look with your eyes first. The glass is sharper than it seems."}, {"text": "What is the Emberfall?", "goto": "emberfall"}, {"text": "I found your wolf.", "conditions": [{"type": "item", "key": "ember_pelt"}], "outcomes": [{"type": "take_item", "key": "ember_pelt", "amount": 1}, {"type": "gold", "amount": 70}, {"type": "affinity", "amount": 8}, {"type": "memory", "text": "Bought a cinder pelt from {player}"}], "answer": "So it is real. Seventy, and you have made a friend today. Do not spend either carelessly."}, {"text": "You trust me with your crate?", "conditions": [{"type": "affinity", "min": 55}], "once": true, "answer": "With the top layer. Take a shard when you need one. I count them, mind."}, {"text": "Talk a while.", "outcomes": [{"type": "small_talk"}]}, {"text": "Farewell.", "outcomes": [{"type": "end"}]}]}, {"id": "emberfall", "text": "A valley three weeks east where the ground never cooled. The glass grows there like frost.", "replies": [{"text": "Does anything live there?", "outcomes": [{"type": "rumour", "key": "cinder_tracks"}], "goto": "emberfall", "once": true, "answer": "Things that followed me here, I fear. There are scorched tracks in your Whisper Woods. Bring me the pelt and I will pay well."}, {"text": "Could I forge with it?", "conditions": [{"type": "skill", "key": "smithing", "min": 15}], "outcomes": [{"type": "skill_xp", "key": "smithing", "amount": 6}], "goto": "emberfall", "once": true, "answer": "If your fire is hot enough. Hotter than iron wants, and do not quench it fast or it will shatter in your tongs."}, {"text": "Enough of far places.", "answer": "As you wish. The relics are here either way."}]}]}
   ]
 }

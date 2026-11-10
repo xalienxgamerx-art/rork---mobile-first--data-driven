@@ -7,7 +7,10 @@ import kotlinx.serialization.Serializable
  * document shaped like [ContentPack]. Definitions are immutable templates; runtime instances
  * live in the save game and only reference definitions by stable string id.
  */
-const val SCHEMA_VERSION = 1
+const val SCHEMA_VERSION = 2
+
+/** Oldest pack format this game still reads. Schema 1 packs use bare ids and the old slot names. */
+const val MIN_SCHEMA_VERSION = 1
 
 @Serializable
 data class ModManifest(
@@ -17,6 +20,7 @@ data class ModManifest(
     val author: String = "",
     val description: String = "",
     val schemaVersion: Int = SCHEMA_VERSION,
+    /** Pack ids, optionally with a minimum version: "core" or "core>=0.2.0". */
     val dependencies: List<String> = emptyList(),
     val loadOrder: Int = 100,
 )
@@ -59,6 +63,22 @@ data class ItemDef(
     val restoreHunger: Float = 0f,
     val restoreComfort: Float = 0f,
     val restoreMagic: Float = 0f,
+    /** one_handed, two_handed or dagger. Empty for anything that is not a weapon. */
+    val weaponType: String = "",
+    /** Swings per second relative to an ordinary sword. */
+    val speed: Float = 1f,
+    /** light, medium or heavy. Empty for anything that is not armour. */
+    val armorClass: String = "",
+    /** Attribute id -> minimum value needed to equip. */
+    val requirements: Map<String, Int> = emptyMap(),
+    /** Attribute id -> bonus while equipped. */
+    val bonuses: Map<String, Int> = emptyMap(),
+    /** Uses (swings or blows taken) before the item is worn out. 0 means it never wears. */
+    val durability: Int = 0,
+    /** Long text shown when a book is read. Falls back to the description. */
+    val text: String = "",
+    /** Rumour learned by reading this. */
+    val rumour: String = "",
 )
 
 @Serializable
@@ -70,6 +90,8 @@ data class RaceDef(
     val staminaBonus: Float = 0f,
     val magicBonus: Float = 0f,
     val skinTones: List<String> = listOf("#D9A77F"),
+    /** Attribute id -> starting adjustment. */
+    val attributes: Map<String, Int> = emptyMap(),
 )
 
 @Serializable
@@ -80,6 +102,8 @@ data class BackgroundDef(
     val items: List<StackDef> = emptyList(),
     val skills: Map<String, Float> = emptyMap(),
     val gold: Int = 20,
+    /** Item ids from [items] that start equipped. */
+    val equip: List<String> = emptyList(),
 )
 
 @Serializable
@@ -146,6 +170,7 @@ data class CreatureDef(
     val loot: List<LootDef> = emptyList(),
     val territory: String = "",
     val count: Int = 2,
+    val description: String = "",
 )
 
 @Serializable
@@ -170,6 +195,7 @@ data class LocationDef(
     val x: Float,
     val z: Float,
     val radius: Float = 40f,
+    val description: String = "",
 )
 
 /** A named outdoor work place. gate is "north", "south" or empty when it lies inside the village. */
@@ -194,6 +220,115 @@ data class ResourceDef(
     val respawnHours: Int = 24,
 )
 
+/**
+ * Anything in the world the player can walk up to and use. Behaviour comes from the data, not
+ * from [kind]: a pack can invent a new kind ("shrine", "milestone") and give it any mix of text,
+ * contents, rest, restoration, a rumour and skill experience. [kind] only picks the default
+ * prompt and how the object is drawn (container, sign, book, bed; anything else is a marker stone).
+ */
+@Serializable
+data class InteractableDef(
+    val id: String,
+    val name: String,
+    val kind: String = "sign",
+    val x: Float,
+    val z: Float,
+    /** Overrides the default prompt, e.g. "Pray at the shrine". */
+    val prompt: String = "",
+    /** Shown in a reading sheet when used. */
+    val text: String = "",
+    /** Taken once, or again after [respawnHours] when that is above zero. */
+    val loot: List<LootDef> = emptyList(),
+    val respawnHours: Int = 0,
+    /** Sleep here until dawn. */
+    val sleep: Boolean = false,
+    /** Gold charged for each use. */
+    val cost: Int = 0,
+    /** NPC who owns this. Use needs [accessAffinity] with them. Empty means anyone may use it. */
+    val owner: String = "",
+    val accessAffinity: Int = 50,
+    /** health, magic, stamina, hunger, comfort -> amount restored on use. */
+    val restore: Map<String, Float> = emptyMap(),
+    val rumour: String = "",
+    /** Skill id -> experience granted the first time this is used. */
+    val skillXp: Map<String, Float> = emptyMap(),
+    /** Game hours before [restore] works again. */
+    val cooldownHours: Int = 0,
+)
+
+@Serializable
+data class RumourDef(
+    val id: String,
+    val title: String,
+    val text: String = "",
+    /** Location the rumour points at, if any. */
+    val location: String = "",
+)
+
+/**
+ * A check on the world. Types: affinity (with the speaker), skill, attribute, level, hour,
+ * gold, item (count carried), flag, memory (the speaker remembers text containing [key]),
+ * rumour (known), place (discovered), relation (friend, rival, family, stranger).
+ * Numeric checks pass when min <= value <= max. Set [negate] to invert.
+ */
+@Serializable
+data class ConditionDef(
+    val type: String,
+    val key: String = "",
+    val min: Float? = null,
+    val max: Float? = null,
+    val negate: Boolean = false,
+)
+
+/**
+ * A consequence of a reply. Types: affinity (amount), rumour (key), give_item / take_item
+ * (key, amount), gold (amount, may be negative), trade, flag (key), memory (text),
+ * skill_xp (key, amount), small_talk, end.
+ */
+@Serializable
+data class OutcomeDef(
+    val type: String,
+    val key: String = "",
+    val amount: Float = 0f,
+    val text: String = "",
+)
+
+@Serializable
+data class ReplyDef(
+    val text: String,
+    val conditions: List<ConditionDef> = emptyList(),
+    val outcomes: List<OutcomeDef> = emptyList(),
+    /** Node to move to. Empty returns to the dialogue's first node. */
+    val goto: String = "",
+    /** Offered only until it has been chosen. */
+    val once: Boolean = false,
+    /** Spoken in answer before moving on. Empty uses the target node's text. */
+    val answer: String = "",
+)
+
+/** One alternative wording of a node, used when all its conditions hold. */
+@Serializable
+data class LineDef(val text: String, val conditions: List<ConditionDef> = emptyList())
+
+@Serializable
+data class DialogueNodeDef(
+    val id: String,
+    val text: String = "",
+    /** Checked in order before [text]; the first match is spoken. */
+    val lines: List<LineDef> = emptyList(),
+    val replies: List<ReplyDef> = emptyList(),
+)
+
+/** A branching conversation. Attached to one NPC, or to everyone of a profession. */
+@Serializable
+data class DialogueDef(
+    val id: String,
+    val npc: String = "",
+    val profession: String = "",
+    /** The first node is where every conversation opens. */
+    val nodes: List<DialogueNodeDef> = emptyList(),
+)
+
 @Serializable
 data class ContentPack(
     val manifest: ModManifest,
@@ -209,4 +344,7 @@ data class ContentPack(
     val locations: List<LocationDef> = emptyList(),
     val spots: List<SpotDef> = emptyList(),
     val resources: List<ResourceDef> = emptyList(),
+    val interactables: List<InteractableDef> = emptyList(),
+    val dialogues: List<DialogueDef> = emptyList(),
+    val rumours: List<RumourDef> = emptyList(),
 )

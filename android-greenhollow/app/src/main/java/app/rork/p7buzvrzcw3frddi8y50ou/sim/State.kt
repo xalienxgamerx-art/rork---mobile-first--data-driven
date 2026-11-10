@@ -3,7 +3,7 @@ package app.rork.p7buzvrzcw3frddi8y50ou.sim
 import kotlinx.serialization.Serializable
 
 /** Everything in this file is persistent instance state. It references definitions only by id. */
-const val SAVE_VERSION = 1
+const val SAVE_VERSION = 2
 
 @Serializable
 data class BladeGeometry(
@@ -59,6 +59,19 @@ data class ItemInstance(
     val forged: ForgedWeapon? = null,
 )
 
+/** How the player's character looks. Colours are hex strings; an empty skin means "the race's first tone". */
+@Serializable
+data class Appearance(
+    var skin: String = "",
+    var hair: String = "#3B291F",
+    /** short, long or bald */
+    var hairStyle: String = "short",
+    var beard: Boolean = false,
+    /** 0.9 slight .. 1.1 broad */
+    var build: Float = 1f,
+    var cloth: String = "#5E6B45",
+)
+
 @Serializable
 data class PlayerState(
     var name: String = "Wanderer",
@@ -79,7 +92,15 @@ data class PlayerState(
     var thirdPerson: Boolean = false,
     val inventory: MutableList<ItemInstance> = mutableListOf(),
     val equipped: MutableMap<String, String> = mutableMapOf(),
+    /** Skill id -> rank with its fractional progress to the next rank, e.g. 12.4. */
     val skills: MutableMap<String, Float> = mutableMapOf(),
+    /** Attribute id -> base value before equipment. Missing means 5. */
+    val attributes: MutableMap<String, Int> = mutableMapOf(),
+    var level: Int = 1,
+    /** Progress towards the next level, measured in skill ranks gained. */
+    var levelProgress: Float = 0f,
+    var attributePoints: Int = 0,
+    val appearance: Appearance = Appearance(),
 )
 
 @Serializable
@@ -116,6 +137,12 @@ data class CreatureState(
 )
 
 @Serializable
+data class BestiaryEntry(var firstSeen: Double = 0.0, var kills: Int = 0)
+
+@Serializable
+data class RumourEntry(val id: String, val minute: Double = 0.0, val source: String = "")
+
+@Serializable
 data class WorldEvent(val minute: Double, val text: String)
 
 @Serializable
@@ -131,7 +158,38 @@ data class SaveGame(
     val harvested: MutableMap<String, Double> = mutableMapOf(),
     val history: MutableList<WorldEvent> = mutableListOf(),
     val packs: List<String> = emptyList(),
+    /** Facts the world remembers: dialogue choices made, things read, one-off rewards taken. */
+    val flags: MutableSet<String> = mutableSetOf(),
+    /** Object id -> game minute it was last opened or used. */
+    val opened: MutableMap<String, Double> = mutableMapOf(),
+    /** Place id -> game minute it was first found. */
+    val discovered: MutableMap<String, Double> = mutableMapOf(),
+    /** Creature id -> what the player knows of it. */
+    val bestiary: MutableMap<String, BestiaryEntry> = mutableMapOf(),
+    val rumours: MutableList<RumourEntry> = mutableListOf(),
+    /** Seed this world was started with. Kept for reports. */
+    val seed: Long = 0,
+    /** Current state of the world's random sequence, so a reloaded world continues it. */
+    var rngState: Long = 0,
 )
+
+/**
+ * The world's only source of chance. Its state lives in the save, so loading a world and
+ * replaying the same inputs gives the same rolls instead of fresh ones. (SplitMix64.)
+ */
+class WorldRng(private val save: SaveGame) {
+    fun nextLong(): Long {
+        save.rngState += -0x61c8864680b583ebL
+        var z = save.rngState
+        z = (z xor (z ushr 30)) * -0x40a7b892e31b1a47L
+        z = (z xor (z ushr 27)) * -0x6b2fb644ecceee15L
+        return z xor (z ushr 31)
+    }
+
+    fun nextFloat(): Float = (nextLong() ushr 40).toFloat() / (1 shl 24).toFloat()
+    fun nextDouble(): Double = (nextLong() ushr 11).toDouble() / (1L shl 53).toDouble()
+    fun nextInt(bound: Int): Int = if (bound <= 1) 0 else ((nextLong() ushr 33) % bound).toInt()
+}
 
 object Calendar {
     private val months = listOf(

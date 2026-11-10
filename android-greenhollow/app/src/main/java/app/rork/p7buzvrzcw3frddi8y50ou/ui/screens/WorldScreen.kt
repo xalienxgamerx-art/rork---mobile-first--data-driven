@@ -55,6 +55,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -268,6 +269,7 @@ private fun CompassCard(engine: GameEngine, hud: Hud, modifier: Modifier = Modif
             Text(hud.clock, style = MaterialTheme.typography.titleMedium)
         }
         val style = TextStyle(fontFamily = Crimson, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Ink.Text)
+        val nameStyle = TextStyle(fontFamily = Crimson, fontWeight = FontWeight.SemiBold, fontSize = 12.sp, color = Ink.LeatherDark)
         Canvas(Modifier.fillMaxWidth().height(34.dp).padding(top = 2.dp)) {
             val cx = size.width / 2f
             val span = 75f
@@ -290,6 +292,48 @@ private fun CompassCard(engine: GameEngine, hud: Hud, modifier: Modifier = Modif
                     }
                 }
                 a += 15
+            }
+            // Places: a filled diamond once found, a hollow one until then. Only found places are named.
+            var facing: String? = null
+            var facingOff = 9f
+            var facingX = 0f
+            val d = 4.dp.toPx()
+            hud.markers.forEach { m ->
+                var off = m.bearing - heading
+                while (off > 180f) off -= 360f
+                while (off < -180f) off += 360f
+                if (off > -span && off < span) {
+                    val x = cx + off / span * cx
+                    val y = baseY - 11.dp.toPx()
+                    val diamond = Path().apply {
+                        moveTo(x, y - d)
+                        lineTo(x + d, y)
+                        lineTo(x, y + d)
+                        lineTo(x - d, y)
+                        close()
+                    }
+                    if (m.name != null) {
+                        drawPath(diamond, Ink.Ember)
+                        drawPath(diamond, Ink.Text.copy(alpha = 0.7f), style = Stroke(1.dp.toPx()))
+                        if (kotlin.math.abs(off) < facingOff) {
+                            facingOff = kotlin.math.abs(off)
+                            facing = m.name
+                            facingX = x
+                        }
+                    } else {
+                        drawPath(diamond, Ink.Muted, style = Stroke(1.2.dp.toPx()))
+                    }
+                }
+            }
+            facing?.let { name ->
+                var cardinal = heading % 90f
+                if (cardinal < 0f) cardinal += 90f
+                // Skip the name when a compass letter sits in the same spot.
+                if (cardinal > 16f && cardinal < 74f) {
+                    val layout = measurer.measure(name, nameStyle, maxLines = 1)
+                    val left = (facingX - layout.size.width / 2f).coerceIn(0f, (size.width - layout.size.width).coerceAtLeast(0f))
+                    drawText(layout, topLeft = Offset(left, 0f))
+                }
             }
             val p = Path().apply {
                 moveTo(cx, baseY - 6.dp.toPx())

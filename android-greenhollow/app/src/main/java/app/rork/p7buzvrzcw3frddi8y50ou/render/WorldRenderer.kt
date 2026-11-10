@@ -319,8 +319,8 @@ class WorldRenderer(
         part(-0.29f, 1.38f, 0f, -swing * 0.8f, -0.3f, 0.13f, 0.6f, 0.15f, cr * 0.88f, cg * 0.88f, cb * 0.88f)
         part(0.29f, 1.38f, 0f, swing * 0.8f, -0.3f, 0.13f, 0.6f, 0.15f, cr * 0.88f, cg * 0.88f, cb * 0.88f)
         part(0f, 1.56f, 0f, 0f, 0f, 0.26f, 0.28f, 0.26f, sr, sg, sb)
-        part(0f, 1.71f, 0.02f, 0f, 0f, 0.29f, 0.09f, 0.3f, hr, hg, hb)
-        if (flags and 4 != 0) part(0f, 1.5f, 0.15f, 0f, 0f, 0.28f, 0.36f, 0.07f, hr, hg, hb)
+        if (flags and 16 == 0) part(0f, 1.71f, 0.02f, 0f, 0f, 0.29f, 0.09f, 0.3f, hr, hg, hb)
+        if (flags and 4 != 0 && flags and 16 == 0) part(0f, 1.5f, 0.15f, 0f, 0f, 0.28f, 0.36f, 0.07f, hr, hg, hb)
         if (flags and 2 != 0) part(0f, 1.45f, -0.14f, 0f, 0f, 0.22f, 0.13f, 0.06f, hr, hg, hb)
         if (flags and 1 != 0) {
             part(0f, 1.76f, 0f, 0f, 0f, 0.5f, 0.04f, 0.5f, cr * 0.5f, cg * 0.5f, cb * 0.5f)
@@ -350,15 +350,53 @@ class WorldRenderer(
         Matrix.setIdentityM(base, 0)
         Matrix.translateM(base, 0, f.nx[i], f.ny[i], f.nz[i])
         Matrix.rotateM(base, 0, i * 47f, 0f, 1f, 0f)
-        if (f.nkind[i] == 1) {
-            part(0f, 0.35f, 0f, 0f, 0f, 1.1f, 0.8f, 0.9f, 0.42f, 0.40f, 0.40f)
-            part(0.45f, 0.3f, 0.3f, 0f, 0f, 0.6f, 0.6f, 0.6f, 0.36f, 0.34f, 0.35f)
-            part(-0.2f, 0.62f, 0.2f, 0f, 0f, 0.3f, 0.3f, 0.3f, 0.72f, 0.48f, 0.32f)
-            part(0.3f, 0.5f, -0.3f, 0f, 0f, 0.22f, 0.22f, 0.22f, 0.76f, 0.52f, 0.34f)
-        } else {
-            part(0f, 0.22f, 0f, 0f, 0f, 0.5f, 0.44f, 0.5f, 0.30f, 0.46f, 0.22f)
-            part(0.1f, 0.52f, 0.05f, 0f, 0f, 0.16f, 0.18f, 0.16f, 0.82f, 0.74f, 0.9f)
-            part(-0.14f, 0.48f, -0.1f, 0f, 0f, 0.14f, 0.16f, 0.14f, 0.9f, 0.84f, 0.5f)
+        when (f.nkind[i]) {
+            1 -> {
+                part(0f, 0.35f, 0f, 0f, 0f, 1.1f, 0.8f, 0.9f, 0.42f, 0.40f, 0.40f)
+                part(0.45f, 0.3f, 0.3f, 0f, 0f, 0.6f, 0.6f, 0.6f, 0.36f, 0.34f, 0.35f)
+                part(-0.2f, 0.62f, 0.2f, 0f, 0f, 0.3f, 0.3f, 0.3f, 0.72f, 0.48f, 0.32f)
+                part(0.3f, 0.5f, -0.3f, 0f, 0f, 0.22f, 0.22f, 0.22f, 0.76f, 0.52f, 0.34f)
+            }
+            // chest: box, lid, iron bands and a latch
+            2 -> {
+                part(0f, 0.22f, 0f, 0f, 0f, 0.8f, 0.44f, 0.5f, 0.42f, 0.27f, 0.14f)
+                part(0f, 0.48f, 0f, 0f, 0f, 0.84f, 0.1f, 0.54f, 0.33f, 0.21f, 0.11f)
+                part(-0.26f, 0.27f, 0f, 0f, 0f, 0.07f, 0.56f, 0.56f, 0.28f, 0.28f, 0.3f)
+                part(0.26f, 0.27f, 0f, 0f, 0f, 0.07f, 0.56f, 0.56f, 0.28f, 0.28f, 0.3f)
+                part(0f, 0.36f, 0.27f, 0f, 0f, 0.1f, 0.12f, 0.04f, 0.74f, 0.6f, 0.28f)
+            }
+            // signpost: post and a notice board
+            3 -> {
+                part(0f, 0.75f, 0f, 0f, 0f, 0.1f, 1.5f, 0.1f, 0.36f, 0.24f, 0.14f)
+                part(0f, 1.28f, 0.07f, 0f, 0f, 0.8f, 0.46f, 0.05f, 0.62f, 0.48f, 0.3f)
+                part(0f, 1.28f, 0.1f, 0f, 0f, 0.58f, 0.3f, 0.02f, 0.9f, 0.84f, 0.7f)
+            }
+            // bed: frame, mattress, pillow and blanket
+            4 -> {
+                part(0f, 0.16f, 0f, 0f, 0f, 0.9f, 0.32f, 1.9f, 0.4f, 0.27f, 0.15f)
+                part(0f, 0.36f, 0f, 0f, 0f, 0.8f, 0.12f, 1.8f, 0.86f, 0.8f, 0.66f)
+                part(0f, 0.46f, -0.68f, 0f, 0f, 0.56f, 0.1f, 0.3f, 0.93f, 0.9f, 0.82f)
+                part(0f, 0.44f, 0.3f, 0f, 0f, 0.84f, 0.06f, 1.1f, 0.5f, 0.3f, 0.24f)
+                part(0f, 0.45f, -0.95f, 0f, 0f, 0.9f, 0.9f, 0.08f, 0.36f, 0.24f, 0.13f)
+            }
+            // standing stone with a lighter cap
+            5 -> {
+                part(0f, 0.12f, 0f, 0f, 0f, 0.7f, 0.24f, 0.6f, 0.44f, 0.43f, 0.41f)
+                part(0f, 0.7f, 0f, 0f, 0f, 0.42f, 1.0f, 0.3f, 0.56f, 0.55f, 0.52f)
+                part(0f, 1.24f, 0f, 0f, 0f, 0.32f, 0.12f, 0.24f, 0.68f, 0.66f, 0.6f)
+            }
+            // lectern with an open book
+            6 -> {
+                part(0f, 0.5f, 0f, 0f, 0f, 0.14f, 1.0f, 0.14f, 0.36f, 0.24f, 0.14f)
+                part(0f, 0.05f, 0f, 0f, 0f, 0.5f, 0.1f, 0.5f, 0.3f, 0.2f, 0.12f)
+                part(0f, 1.02f, 0f, 24f, 0f, 0.62f, 0.06f, 0.46f, 0.42f, 0.28f, 0.16f)
+                part(0f, 1.07f, 0f, 24f, 0f, 0.5f, 0.05f, 0.36f, 0.93f, 0.89f, 0.76f)
+            }
+            else -> {
+                part(0f, 0.22f, 0f, 0f, 0f, 0.5f, 0.44f, 0.5f, 0.30f, 0.46f, 0.22f)
+                part(0.1f, 0.52f, 0.05f, 0f, 0f, 0.16f, 0.18f, 0.16f, 0.82f, 0.74f, 0.9f)
+                part(-0.14f, 0.48f, -0.1f, 0f, 0f, 0.14f, 0.16f, 0.14f, 0.9f, 0.84f, 0.5f)
+            }
         }
     }
 

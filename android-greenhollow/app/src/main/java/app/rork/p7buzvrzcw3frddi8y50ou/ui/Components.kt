@@ -227,6 +227,7 @@ fun Portrait(
     beard: Boolean,
     longHair: Boolean,
     modifier: Modifier = Modifier,
+    bald: Boolean = false,
 ) {
     val skinC = Color(parseHex(skin, 0xFFD9A77F.toInt()))
     val hairC = Color(parseHex(hair, 0xFF4A3222.toInt()))
@@ -241,7 +242,7 @@ fun Portrait(
         val ink = Color(0xFF2B1D12)
         val line = Stroke(width = w * 0.022f, cap = StrokeCap.Round)
         // long hair behind the head
-        if (longHair) {
+        if (longHair && !bald) {
             drawRoundRect(hairC, Offset(w * 0.25f, h * 0.2f), Size(w * 0.5f, h * 0.52f), CornerRadius(w * 0.2f))
         }
         // shoulders
@@ -273,7 +274,7 @@ fun Portrait(
             cubicTo(w * 0.36f, h * 0.3f, w * 0.33f, h * 0.34f, w * 0.3f, h * 0.4f)
             close()
         }
-        drawPath(cap, hairC)
+        if (!bald) drawPath(cap, hairC)
         // face
         drawCircle(ink, w * 0.018f, Offset(w * 0.43f, h * 0.41f))
         drawCircle(ink, w * 0.018f, Offset(w * 0.57f, h * 0.41f))
